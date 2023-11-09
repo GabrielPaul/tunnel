@@ -1,0 +1,19 @@
+#ifndef __TUNNELD_TUNNEL_COMMON_H__
+#define __TUNNELD_TUNNEL_COMMON_H__
+
+#define TUNNELD_CMD_LENGTH 64
+#define TUNNELD_CMD_DATA_LENGTH 64
+#define TUNNEL_PULL_STR "pull"
+#define TUNNELD_LISTENING_MSG_PULL_CMD TUNNEL_PULL_STR
+#define TUNNELD_REQUEST_STR "request"
+#define CONN_TUNNELD_PASSWD_SUCCESS "success"
+#define CONN_TUNNELD_PASSWD_ERROR "error"
+#define INVALID_SOCKET_FD -1
+#define TOKEN_LENGTH 30
+#define MAX_REQ_RESP_CONN_PAIR 20
+#define TUNNEL_PASSWD_CMD "tunnel"
+#define HEART_BEAT_STR "heart beat"
+#define HEART_BEAT_INTERVAL 60
+int set_noblockSock(int fd);
+
+#endif
