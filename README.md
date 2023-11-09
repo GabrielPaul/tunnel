@@ -2,7 +2,7 @@
 rebuild tunnel from https://github.com/i183/tunnel
 
 # Compile
-enter tunneld directory run  
+enter code directory run  
 `make`  
 or  
 `mkdir build && cd build && cmake ../. && make`  
