@@ -23,6 +23,7 @@ static CLOSE_TUNNEL_CALLBACK g_close_cb = NULL;
 #define DEFAULT_SERVER_PORT "8877"
 #define DEFAULT_SERVER_AUTH_STR "kdgc_aron"
 #define DEFAULT_LOCAL_SERVER_PORT "80"
+#define DEFAULT_LOCAL_IFRAME ""
 #endif
 volatile int gRunTunnel = 1;
 static char TUNNELD_ADDR[64] = {0};
@@ -35,6 +36,7 @@ static char gReqPort[5] = {0};
 static TUNNEL_FD_LINK_LIST gtfd_llst;
 static TUNNEL_REQRESP_PAIR_TYPE gloTldPair[MAX_REQ_RESP_CONN_PAIR];
 static int gtfdp_num = 0;
+const char gLOCAL_IFR[14]={0};    //local iframe name
 
 const char DEBUG_TUNNEL_FD_TYPE_STR[][64]=
 {
@@ -97,7 +99,7 @@ int getLocalIP(const char *ethernet, char *addr_ipv4, char *addr_ipv6)
         {
             inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN); // is a valid IP4 Address
             // printf("%s IP Address %s\n", ifAddrStruct->ifa_name, addressBuffer);
-            if(ethernet!=NULL)
+            if(ethernet!=NULL && strlen(ethernet)>0)
             {
                 if(strcmp(ifAddrStruct->ifa_name, ethernet) == 0)
                 {
@@ -113,7 +115,7 @@ int getLocalIP(const char *ethernet, char *addr_ipv4, char *addr_ipv6)
         {
             inet_ntop(AF_INET6, tmpAddrPtr, addressBuffer6, INET6_ADDRSTRLEN); // is a valid IP6 Address
             // printf("%s IPV6 Address %s\n", ifAddrStruct->ifa_name, addressBuffer6);
-            if(ethernet!=NULL)
+            if(ethernet!=NULL && strlen(ethernet)>0)
             {
                 if(strcmp(ifAddrStruct->ifa_name, ethernet) == 0)
                 {
@@ -233,7 +235,7 @@ static int connLocalSrv()
     char ipv4[23] = {0};
 
     //getLocalIP(LOCAL_IFA_NAME, ipv4, NULL);
-    getLocalIP(NULL, ipv4, NULL);
+    getLocalIP(gLOCAL_IFR, ipv4, NULL);
     //LOG_INFO("iframe name %s local ipv4:%s",LOCAL_IFA_NAME,ipv4);
     fd2LServ = connSock(ipv4, TUNNEL_LOCAL_SERVICE_PORT,SOCKET_NO_BLOCK);
     return fd2LServ;
@@ -787,16 +789,19 @@ static int load_iniConfig()
     const char *p_srv_port=NULL;
     const char *p_srv_authStr=NULL;
     const char *p_local_srv_port=NULL;
+    const char *p_local_ifr=NULL;
 
     ini = iniparser_load(TUNNEL_CONFIG_FILE);
     p_srv_addr = iniparser_getstring(ini, "config:server_addr", DEFAULT_SERVER_ADDR);
     p_srv_port=iniparser_getstring(ini, "config:server_port",DEFAULT_SERVER_PORT);
     p_srv_authStr = iniparser_getstring(ini, "config:auth_str",DEFAULT_SERVER_AUTH_STR);
     p_local_srv_port = iniparser_getstring(ini, "config:local_srv_port",DEFAULT_LOCAL_SERVER_PORT);
+    p_local_ifr = iniparser_getstring(ini, "config:iframe_name",DEFAULT_LOCAL_IFRAME);
     sprintf(TUNNELD_ADDR,"%s",p_srv_addr);
     TUNNELD_PORT = atoi(p_srv_port);
     TUNNEL_LOCAL_SERVICE_PORT = atoi(p_local_srv_port);
     sprintf(TUNNELD_AUTH_STR,"%s",p_srv_authStr);
+    sprintf(gLOCAL_IFR,"%s",p_local_ifr);
     iniparser_freedict(ini);
     return 0;
 }
@@ -842,7 +847,7 @@ static time_t gen_heartBeat(time_t preTm,pTUNNEL_FD mgnTfd)
 }
 
 #ifdef BUILD_LIBRARY_TUNNEL
-int create_tunnel_ex(char *ip, int r_port, int l_port, char *password)
+int create_tunnel_ex(const char* ifr,char *ip, int r_port, int l_port, char *password)
 #else
 int main(int argc, int *args)
 #endif
@@ -861,12 +866,13 @@ int main(int argc, int *args)
     TUNNEL_LOCAL_SERVICE_PORT = l_port;
     sprintf(TUNNELD_AUTH_STR,"%s",password);
     sprintf(TUNNELD_ADDR,"%s",ip);
-    printf("tunneld server addr:%s,port:%d,local service port:%d,auth string:%s\r\n",TUNNELD_ADDR,
-           TUNNEL_LOCAL_SERVICE_PORT,TUNNELD_PORT,TUNNELD_AUTH_STR);
+    sprintf(gLOCAL_IFR,"%s",ifr);
+    printf("local iframe name:%s,tunneld server addr:%s,port:%d,local service port:%d,auth string:%s\r\n",gLOCAL_IFR,TUNNELD_ADDR,
+        TUNNEL_LOCAL_SERVICE_PORT,TUNNELD_PORT,TUNNELD_AUTH_STR);
 #else
     load_iniConfig();
 #endif
-    LOG_INFO("tunneld server addr:%s,port:%d,local service port:%d,auth string:%s",TUNNELD_ADDR,
+    LOG_INFO("local iframe name:%s,tunneld server addr:%s,port:%d,local service port:%d,auth string:%s",gLOCAL_IFR,TUNNELD_ADDR,
              TUNNEL_LOCAL_SERVICE_PORT,TUNNELD_PORT,TUNNELD_AUTH_STR);
     fd = connSock(TUNNELD_ADDR,TUNNELD_PORT,SOCKET_NO_BLOCK);
     if(fd == INVALID_SOCKET_FD)
