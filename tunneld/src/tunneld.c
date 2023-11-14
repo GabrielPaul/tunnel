@@ -38,6 +38,8 @@ const int SOCKET_REUSE_FLAG = SOCKET_REUSE;
 static TUNNELD_GNL_LINK g_tfds_llst= {NULL,NULL}; //global tunnld fd set link list
 //static TUNNELD_GNL_LINK g_mgnt_tfd_llst = {NULL,NULL}; //global manage listening tunneld fd link list
 //static TUNNELD_GNL_LINK g_req_tfd_llst = {NULL,NULL}; //global request listening tunneld fd link list
+static pTUNNELD_FD g_ptfd_listen = NULL;
+
 
 const char DEBUG_TUNNELD_FD_TYPE_STR[][64]=
 {
@@ -631,12 +633,20 @@ static int remove_data_from_llst(pTUNNELD_GNL_LINK llst,void *data,FREE_LLST_DAT
 
 void _sighandler_t(int sig)
 {
+    LOG_INFO("ctrl+c program");
+    exit(0);
+}
+void exit_clean(void)
+{
     LOG_INFO("tunneld fd chain length %d",get_llstNum(&g_tfds_llst));
     free_llst(&g_tfds_llst,free_ptfds);
     LOG_INFO("tunneld fd chain length %d",get_llstNum(&g_tfds_llst));
-    LOG_INFO("ctrl+c program");
     zlog_fini();
-    exit(0);
+    if(g_ptfd_listen)
+    {
+        //close(g_ptfd_listen->fd);
+        deInit_tfd(g_ptfd_listen);
+    }
 }
 
 //************** epoll operation start **************
@@ -1085,8 +1095,8 @@ int main(int argc,void *args)
     int epfd;
     struct epoll_event ev,event[MAX_EVENT];
     int ecnt;   //event count
-    pTUNNELD_FD ptfd_listen;
     pTUNNELD_FD ptfd;
+    int rc = 0;
 
     // signal(SIGTTOU, SIG_IGN);
     // signal(SIGTTIN, SIG_IGN);
@@ -1099,18 +1109,24 @@ int main(int argc,void *args)
     //printf("tunneld listening port:%d,password:%s,configure file:%s\r\n",TUNNLED_LISTEN_PORT,TUNNEL_PASSWD,ZLOG_CONFIG_FILE);
     dzlog_init(ZLOG_CONFIG_FILE,"tunneld");
     LOG_INFO("tunneld listening port:%d,password:%s,configure file:%s",TUNNLED_LISTEN_PORT,TUNNEL_PASSWD,ZLOG_CONFIG_FILE);
+    rc = atexit(exit_clean);
+    if(rc)
+    {
+        LOG_INFO("atexit fail, rc[%d]", rc);
+        goto err;
+    }
     //create tunneld socket to listen
     fd = socket_tunneld(TUNNLED_LISTEN_PORT,SOCKET_REUSE,SOCKET_NO_BLOCK); //SOCKET_BLOCK SOCKET_NO_BLOCK
     //create epoll
     epfd = epoll_create1(0);
     memset(&ev,0,sizeof(ev));
     ev.events = EPOLLIN | EPOLLET;  //Edge triggered,triggered only when data is written from the peer
-    ptfd_listen = malloc(sizeof(TUNNELD_FD));
-    assert(ptfd_listen!=NULL);
-    memset(ptfd_listen,0,sizeof(TUNNELD_FD));
-    ptfd_listen->fd = fd;
-    ptfd_listen->fd_type = TUNNELD_FD_MGNT_LISTENING;
-    ev.data.ptr = (void *)ptfd_listen;
+    g_ptfd_listen = malloc(sizeof(TUNNELD_FD));
+    assert(g_ptfd_listen!=NULL);
+    memset(g_ptfd_listen,0,sizeof(TUNNELD_FD));
+    g_ptfd_listen->fd = fd;
+    g_ptfd_listen->fd_type = TUNNELD_FD_MGNT_LISTENING;
+    ev.data.ptr = (void *)g_ptfd_listen;
     //set epoll
     epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev);
     //start epoll wait
@@ -1195,6 +1211,6 @@ int main(int argc,void *args)
         }
         //sleep(2);
     }
-    close(fd);
+err:
     return 0;
 }

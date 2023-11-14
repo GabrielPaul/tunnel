@@ -1,6 +1,7 @@
 CC = gcc
 LD = gcc
 PROJ_DIR = $(shell pwd)
+DEBUG=true
 
 # common
 COMMON_INC_DIR = common/inc
@@ -10,6 +11,9 @@ COMMON_SRC = $(wildcard $(COMMON_SRC_DIR)/*.c)
 COMMON_BUILD_DIR = build/common_obj
 COMMON_OBJ = $(subst $(COMMON_SRC_DIR),$(COMMON_BUILD_DIR),$(patsubst %.c,%.o,$(COMMON_SRC)))
 COMMON_CFLAGS = -I./common/inc
+ifeq ($(DEBUG),true)
+COMMON_CFLAGS += -g
+endif
 # tunnel
 TUNNLE_INC_DIR = tunnel/inc
 TUNNLE_SRC_DIR = tunnel/src
@@ -20,6 +24,9 @@ TUNNLE_OBJ = $(subst $(TUNNLE_SRC_DIR),$(TUNNLE_BUILD_DIR),$(patsubst %.c,%.o,$(
 TUNNLE_CFLAGS = -I./tunnel/inc -I./common/inc
 TUNNLE_LDFLAGS =
 TUNNLE_NAME = tunnel
+ifeq ($(DEBUG),true)
+TUNNLE_CFLAGS += -g
+endif
 
 #tunneld
 TUNNLED_SRC_DIR = tunneld/src
@@ -31,9 +38,12 @@ TUNNLED_OBJ = $(subst $(TUNNLED_SRC_DIR),$(TUNNLED_BUILD_DIR),$(patsubst %.c,%.o
 TUNNLED_CFLAGS = -I./lib/zlog/include -I./tunneld/inc -I./common/inc
 TUNNLED_LDFLAGS = -L./lib/zlog/lib -lzlog -pthread -static #-lm -lc #-lpthread #-lrt #-lpthread -lm -lc
 TUNNLED_NAME = tunneld
+ifeq ($(DEBUG),true)
+TUNNLED_CFLAGS += -g
+endif
 
 #final build dir
-F_BUILD_DIR = ./build
+F_BUILD_DIR = $(PROJ_DIR)/build
 
 .PHONY:tunnel_prep tunneld_prep
 
@@ -45,10 +55,12 @@ debug:
 	@echo $(PROJ_DIR)
 	@echo $(TUNNLED_OBJ)
 	mkdir -p $(TUNNLED_BUILD_DIR)
+	cp $(PROJ_DIR)/.gdbinit $(TUNNLED_BUILD_DIR)
 
 ## common used
 common_prep:
 	mkdir -p $(COMMON_BUILD_DIR)
+	cp $(PROJ_DIR)/.gdbinit $(F_BUILD_DIR)
 $(COMMON_BUILD_DIR)/%.o:$(COMMON_SRC_DIR)/%.c
 	$(CC) $(COMMON_CFLAGS) -o $@ -c $^
 common:common_prep $(COMMON_OBJ)

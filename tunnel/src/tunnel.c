@@ -36,7 +36,7 @@ static char gReqPort[5] = {0};
 static TUNNEL_FD_LINK_LIST gtfd_llst;
 static TUNNEL_REQRESP_PAIR_TYPE gloTldPair[MAX_REQ_RESP_CONN_PAIR];
 static int gtfdp_num = 0;
-const char gLOCAL_IFR[14]={0};    //local iframe name
+static char gLOCAL_IFR[14]={0};    //local iframe name
 
 const char DEBUG_TUNNEL_FD_TYPE_STR[][64]=
 {
@@ -930,6 +930,7 @@ int main(int argc, int *args)
             preBeat_tm = gen_heartBeat(preBeat_tm,&tfd_mgt);
             continue;
         }
+		time(&preBeat_tm);	//record last time of transfer data with tunneld
         // LOG_DEBUG("select count %d", cnt);
         ptfd_llst = gtfd_llst.next;    //first link not use
         while(ptfd_llst != NULL)

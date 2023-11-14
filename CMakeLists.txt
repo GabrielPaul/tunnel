@@ -3,7 +3,7 @@ project(tunnel)
 set(TUNNEL_TARGET ON)
 set(TUNNELD_TARGET ON)
 # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 
 # x21 compiler
 # set(X21_COMPILE ON)
@@ -42,10 +42,13 @@ ${CMAKE_CURRENT_SOURCE_DIR}/lib/zlog/include
 ${CMAKE_CURRENT_SOURCE_DIR}/tunneld/inc
 ${CMAKE_CURRENT_SOURCE_DIR}/common/inc
 )
+
 target_link_libraries(tunneld 
 	${CMAKE_CURRENT_SOURCE_DIR}/lib/zlog/lib/libzlog.a
 	pthread
 	)
+
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/tunneld/etc/tunneld.conf DESTINATION ${CMAKE_BINARY_DIR}/)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/tunneld/etc/zlog.conf DESTINATION ${CMAKE_BINARY_DIR}/)
 endif()
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/.gdbinit DESTINATION ${CMAKE_BINARY_DIR}/)
