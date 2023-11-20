@@ -18,7 +18,7 @@ extern "C" {
 
 # if defined __GNUC__
 #   define ZLOG_CHECK_PRINTF(m,n) __attribute__((format(printf,m,n)))
-# else 
+# else
 #   define ZLOG_CHECK_PRINTF(m,n)
 # endif
 
@@ -38,45 +38,46 @@ char *zlog_get_mdc(const char *key);
 void zlog_remove_mdc(const char *key);
 void zlog_clean_mdc(void);
 
-int zlog_level_switch(zlog_category_t * category, int level);
-int zlog_level_enabled(zlog_category_t * category, int level);
+int zlog_level_switch(zlog_category_t *category, int level);
+int zlog_level_enabled(zlog_category_t *category, int level);
 
-void zlog(zlog_category_t * category,
-	const char *file, size_t filelen,
-	const char *func, size_t funclen,
-	long line, int level,
-	const char *format, ...) ZLOG_CHECK_PRINTF(8,9);
-void vzlog(zlog_category_t * category,
-	const char *file, size_t filelen,
-	const char *func, size_t funclen,
-	long line, int level,
-	const char *format, va_list args);
-void hzlog(zlog_category_t * category,
-	const char *file, size_t filelen,
-	const char *func, size_t funclen,
-	long line, int level,
-	const void *buf, size_t buflen);
+void zlog(zlog_category_t *category,
+          const char *file, size_t filelen,
+          const char *func, size_t funclen,
+          long line, int level,
+          const char *format, ...) ZLOG_CHECK_PRINTF(8, 9);
+void vzlog(zlog_category_t *category,
+           const char *file, size_t filelen,
+           const char *func, size_t funclen,
+           long line, int level,
+           const char *format, va_list args);
+void hzlog(zlog_category_t *category,
+           const char *file, size_t filelen,
+           const char *func, size_t funclen,
+           long line, int level,
+           const void *buf, size_t buflen);
 
 int dzlog_init(const char *confpath, const char *cname);
 int dzlog_set_category(const char *cname);
 
 void dzlog(const char *file, size_t filelen,
-	const char *func, size_t funclen,
-	long line, int level,
-	const char *format, ...) ZLOG_CHECK_PRINTF(7,8);
+           const char *func, size_t funclen,
+           long line, int level,
+           const char *format, ...) ZLOG_CHECK_PRINTF(7, 8);
 void vdzlog(const char *file, size_t filelen,
-	const char *func, size_t funclen,
-	long line, int level,
-	const char *format, va_list args);
+            const char *func, size_t funclen,
+            long line, int level,
+            const char *format, va_list args);
 void hdzlog(const char *file, size_t filelen,
-	const char *func, size_t funclen,
-	long line, int level,
-	const void *buf, size_t buflen);
+            const char *func, size_t funclen,
+            long line, int level,
+            const void *buf, size_t buflen);
 
-typedef struct zlog_msg_s {
-	char *buf;
-	size_t len;
-	char *path;
+typedef struct zlog_msg_s
+{
+    char *buf;
+    size_t len;
+    char *path;
 } zlog_msg_t;
 
 typedef int (*zlog_record_fn)(zlog_msg_t *msg);
@@ -86,14 +87,15 @@ const char *zlog_version(void);
 
 /******* useful macros, can be redefined at user's h file **********/
 
-typedef enum {
-	ZLOG_LEVEL_DEBUG = 20,
-	ZLOG_LEVEL_INFO = 40,
-	ZLOG_LEVEL_NOTICE = 60,
-	ZLOG_LEVEL_WARN = 80,
-	ZLOG_LEVEL_ERROR = 100,
-	ZLOG_LEVEL_FATAL = 120
-} zlog_level; 
+typedef enum
+{
+    ZLOG_LEVEL_DEBUG = 20,
+    ZLOG_LEVEL_INFO = 40,
+    ZLOG_LEVEL_NOTICE = 60,
+    ZLOG_LEVEL_WARN = 80,
+    ZLOG_LEVEL_ERROR = 100,
+    ZLOG_LEVEL_FATAL = 120
+} zlog_level;
 
 #if !defined(__STDC_VERSION__) || __STDC_VERSION__ < 199901L
 # if defined __GNUC__ && __GNUC__ >= 2

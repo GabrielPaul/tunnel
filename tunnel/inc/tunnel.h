@@ -120,24 +120,24 @@ typedef struct
     int rdlen;      //read data length
     char *wdata;    //write data
     int wdlen;      //write data length
-} TUNNEL_FD,*pTUNNEL_FD;
+} TUNNEL_FD, *pTUNNEL_FD;
 
 typedef struct _TUNNELD_REQRESP_PAIR
 {
     TUNNEL_FD lsrv;         /* receive or send to local service fd */
     TUNNEL_FD lsrv2Tld;     /* local service data to tunnled fd */
-} TUNNEL_REQRESP_PAIR_TYPE,*pTUNNEL_REQRESP_PAIR_TYPE;
+} TUNNEL_REQRESP_PAIR_TYPE, *pTUNNEL_REQRESP_PAIR_TYPE;
 
 typedef struct _TUNNEL_FD_LINK_LIST     //tunnel fd link list
 {
     pTUNNEL_FD ptfd;
     struct _TUNNEL_FD_LINK_LIST *next;
-} TUNNEL_FD_LINK_LIST,*pTUNNEL_FD_LINK_LIST;
+} TUNNEL_FD_LINK_LIST, *pTUNNEL_FD_LINK_LIST;
 
 #ifdef BUILD_LIBRARY_TUNNEL
-typedef void* (*CONN_TUNNEL_CALLBACK)(int reqPort);
+typedef void *(*CONN_TUNNEL_CALLBACK)(int reqPort);
 typedef void (*CLOSE_TUNNEL_CALLBACK)();
-int create_tunnel_ex(const char* ifr,char *ip, int r_port, int l_port, char *password);
+int create_tunnel_ex(const char *ifr, char *ip, int r_port, int l_port, char *password);
 void set_connTunnel_cb(CONN_TUNNEL_CALLBACK conn_fun);
 void set_closeTunnel_cb(CLOSE_TUNNEL_CALLBACK cb);
 void close_tunnel_ex();

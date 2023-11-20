@@ -97,13 +97,13 @@ typedef struct _epoll_fd
     TUNNELD_FD_TYPE fd_type;
     char *data; //socket fd received data
     int dlen;   //socket fd received data length
-} TUNNELD_FD,*pTUNNELD_FD;
+} TUNNELD_FD, *pTUNNELD_FD;
 
 typedef struct _TUNNELD_FD_PAIR
 {
     TUNNELD_FD tfd_resp;    //response data socket,type TUNNELD_FD_RESP_CONN
     TUNNELD_FD tfd_req;     //request socket,type TUNNELD_FD_REQ_CONN
-} TUNNELD_FD_PAIR,*pTUNNELD_FD_PAIR;
+} TUNNELD_FD_PAIR, *pTUNNELD_FD_PAIR;
 
 typedef struct _TUNNELD_FD_SET
 {
@@ -114,14 +114,14 @@ typedef struct _TUNNELD_FD_SET
     char token[TOKEN_LENGTH];
     void *data;
     int dlen;	//data length
-} TUNNELD_FD_SET,*pTUNNELD_FD_SET;
+} TUNNELD_FD_SET, *pTUNNELD_FD_SET;
 
 typedef struct _TUNNELD_GNL_LINK       //tunneld general link
 {
-    void* data;   //point to tunneld socket fd set
+    void *data;   //point to tunneld socket fd set
     struct _TUNNELD_GNL_LINK *next;
-}TUNNELD_GNL_LINK,*pTUNNELD_GNL_LINK;
-typedef void* (*FREE_LLST_DATA_FUN)(void* data);
+} TUNNELD_GNL_LINK, *pTUNNELD_GNL_LINK;
+typedef void *(*FREE_LLST_DATA_FUN)(void *data);
 
 typedef struct
 {
